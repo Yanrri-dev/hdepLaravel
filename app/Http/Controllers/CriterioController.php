@@ -93,9 +93,13 @@ class CriterioController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(Modulo $modulo, Evaluation $evaluation, Question $pregunta)
+    public function edit(Modulo $modulo, Evaluation $evaluation, Question $pregunta, Criterio $criterio)
     {
-        //
+        $criterios = Criterio::where('modulo_id',$modulo->id)->pluck('name','id');
+
+        //return $criterio->questions->find($pregunta->id)->pivot->score;
+
+        return view('criterios.edit',compact(['modulo','evaluation','pregunta','criterio','criterios']));
     }
 
     /**
@@ -105,7 +109,7 @@ class CriterioController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Modulo $modulo, Evaluation $evaluation, Question $pregunta,Request $request)
+    public function update(Modulo $modulo, Evaluation $evaluation, Question $pregunta,Criterio $criterio, Request $request)
     {
         //
     }

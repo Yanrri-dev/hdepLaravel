@@ -128,7 +128,7 @@
                             <td>{{$criterio->pivot->score}}</td>
                         
                             <td width="10px">
-                                <a class="tooltip p-2 my-2 bg-yellow-300 text-yellow-800 rounded-md focus:outline-none focus:ring-2 ring-yellow-300 ring-offset-2 fas fa-pen" href="{{route('preguntas.edit',[$modulo,$evaluation,$pregunta])}}"><span class="tooltiptext">Editar Pregunta</span></a>
+                                <a class="tooltip p-2 my-2 bg-yellow-300 text-yellow-800 rounded-md focus:outline-none focus:ring-2 ring-yellow-300 ring-offset-2 fas fa-pen" href="{{route('criterios.edit',[$modulo,$evaluation,$pregunta,$criterio])}}"><span class="tooltiptext">Editar Pregunta</span></a>
                             </td>
 
                             <td width="10px">

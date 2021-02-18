@@ -20,7 +20,7 @@ class Criterio extends Model
     //many to many (questions)
 
     public function questions(){
-        return $this->belongsToMany('App\Model\Question');
+        return $this->belongsToMany('App\Models\Question','question_criterio','criterio_id','question_id')->withPivot('score');
     }
 
     // Many to Many (obtiene user)

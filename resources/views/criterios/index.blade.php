@@ -128,14 +128,14 @@
                             <td>{{$criterio->pivot->score}}</td>
                         
                             <td width="10px">
-                                <a class="tooltip p-2 my-2 bg-yellow-300 text-yellow-800 rounded-md focus:outline-none focus:ring-2 ring-yellow-300 ring-offset-2 fas fa-pen" href="{{route('criterios.edit',[$modulo,$evaluation,$pregunta,$criterio])}}"><span class="tooltiptext">Editar Pregunta</span></a>
+                                <a class="tooltip p-2 my-2 bg-yellow-300 text-yellow-800 rounded-md focus:outline-none focus:ring-2 ring-yellow-300 ring-offset-2 fas fa-pen" href="{{route('criterios.edit',[$modulo,$evaluation,$pregunta,$criterio])}}"><span class="tooltiptext">Editar Criterio</span></a>
                             </td>
 
                             <td width="10px">
-                                <form action="{{route('preguntas.destroy', [$modulo,$evaluation,$pregunta])}}" method="POST">
+                                <form action="{{route('criterios.destroy', [$modulo,$evaluation,$pregunta,$criterio])}}" method="POST">
                                     @csrf
                                     @method('delete')
-                                    <button type="submit" class="tooltip p-2 my-2 bg-red-400 text-red-900 rounded-md focus:outline-none focus:ring-2 ring-red-300 ring-offset-2  fas fa-trash"><span class="tooltiptext">Eliminar Pregunta</span></button>
+                                    <button type="submit" class="tooltip p-2 my-2 bg-red-400 text-red-900 rounded-md focus:outline-none focus:ring-2 ring-red-300 ring-offset-2  fas fa-trash"><span class="tooltiptext">Eliminar Criterio</span></button>
                                 </form>
                             </td>
                         </tr>

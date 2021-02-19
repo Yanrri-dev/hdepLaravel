@@ -15,6 +15,10 @@
                         {!! Form::select('criterio_id', $criterios, null, ['class' => 'form-control']) !!}
                     </div>
 
+                    @error('criterio_id')
+                        <span class="text-danger">{{$message}}</span>
+                    @enderror
+
                     <div class="form-group">
                         {!! Form::label('score', 'Puntaje') !!}
                         {!! Form::number('score',$criterio->questions->find($pregunta->id)->pivot->score, ['class' => 'form-control', 'min' => '0.1', 'step' => '0.1', 'placeholder' =>'Ingrese el puntaje del criterio en la pregunta']) !!}

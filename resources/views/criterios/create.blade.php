@@ -26,9 +26,13 @@
                     </div>
 
                     <div class="form-group">
-                        {!! Form::label('criterio_old', 'Seleccione el criterio') !!}
-                        {!! Form::select('criterio_old', $criterios, null, ['class' => 'form-control']) !!}
+                        {!! Form::label('criterio_id', 'Seleccione el criterio') !!}
+                        {!! Form::select('criterio_id', $criterios, null, ['class' => 'form-control']) !!}
                     </div>
+
+                    @error('criterio_id')
+                            <span class="text-danger">{{$message}}</span>
+                    @enderror
 
                     <div class="form-group">
                         {!! Form::label('name', 'Nombre',['style' => 'display:none;']) !!}
@@ -67,16 +71,16 @@
                     $('#name').get(0).type = 'text';
                     $('label[for=name]').show();
 
-                    $('label[for=criterio_old]').hide();
-                    $('#criterio_old').hide();
+                    $('label[for=criterio_id]').hide();
+                    $('#criterio_id').hide();
                 }
                 else if (this.value == 'viejo') {
                     //alert("viejo criterio");
                     $('#name').get(0).type = 'hidden';
                     $('label[for=name]').hide();
 
-                    $('label[for=criterio_old]').show();
-                    $('#criterio_old').show();
+                    $('label[for=criterio_id]').show();
+                    $('#criterio_id').show();
                 }
                 
                 /* 

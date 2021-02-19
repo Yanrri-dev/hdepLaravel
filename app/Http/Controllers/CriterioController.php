@@ -8,6 +8,8 @@ use App\Models\Evaluation;
 use App\Models\Question;
 use App\Models\Criterio;
 use Illuminate\Support\Str as Str;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class CriterioController extends Controller
 {
@@ -50,27 +52,44 @@ class CriterioController extends Controller
             
             $slug= Str::slug($request->name);
             $request->merge(['slug' => $slug]);
+            
+            //-- validation for max score available to new criterio --//
+            $suma = 0;
+            foreach ($pregunta->criterios as $c){
+                $suma = $suma + $c->pivot->score;
+            }
+            $scoreAvailable = $pregunta->total_score - $suma;
 
             $request->validate([
                 'slug' => 'required|unique:criterios',
-                'score' => 'required',
+                'score' =>  "required|numeric|min:0.1|max:$scoreAvailable"
             ]);
-            
+             //--//
             $request->merge(['modulo_id' => $modulo->id]);
 
-            $criterio = Criterio::create($request->except(['score','criterio_old']));
+            $criterio = Criterio::create($request->except(['score','criterio_id']));
 
             $pregunta->criterios()->attach($criterio->id,['score' => $request->score]);
 
             return redirect()->route('criterios.index',[$modulo,$evaluation,$pregunta])->with('info','El criterio se creó y agregó a la pregunta exitosamente');
 
         }else{
+
+             //-- validation for max score available to new criterio --//
+            $suma = 0;
+            foreach ($pregunta->criterios as $c){
+                $suma = $suma + $c->pivot->score;
+            }
+            $scoreAvailable = $pregunta->total_score - $suma;
+
             $request->validate([
-                'criterio_old' => 'required',
-                'score' => 'required',
+                'criterio_id' => ['required', Rule::unique('question_criterio')->where(function($query) use ($pregunta){
+                    return $query->where('question_id',$pregunta->id);
+                })],
+                'score' =>  "required|numeric|min:0.1|max:$scoreAvailable",
             ]);
 
-            $pregunta->criterios()->attach($request->criterio_old,['score' => $request->score]);
+            $pregunta->criterios()->attach($request->criterio_id,['score' => $request->score]);
             
             return redirect()->route('criterios.index',[$modulo,$evaluation,$pregunta])->with('info','El criterio se agregó a la pregunta exitosamente');
         }
@@ -111,7 +130,32 @@ class CriterioController extends Controller
      */
     public function update(Modulo $modulo, Evaluation $evaluation, Question $pregunta,Criterio $criterio, Request $request)
     {
-        //
+        $suma = 0;
+        foreach ($pregunta->criterios as $c){
+            $suma = $suma + $c->pivot->score;
+        }
+        $score_old = $criterio->questions->find($pregunta->id)->pivot->score;
+        $scoreAvailable = $pregunta->total_score - $suma + $score_old; 
+
+
+        $request->validate([
+            'criterio_id' => ['required', Rule::unique('question_criterio')->where(function($query) use ($pregunta,$criterio){
+                return $query->where('question_id',$pregunta->id)->where('criterio_id','!=',$criterio->id);
+            })],
+            'score' => "required|numeric|min:0.1|max:$scoreAvailable",
+        ]);
+
+        DB::table('question_criterio')
+                                    ->where('question_id',$pregunta->id)
+                                    ->where('criterio_id',$criterio->id)
+                                    ->update([
+                                        'score' => $request->score,
+                                        'criterio_id' => $request->criterio_id                                            
+                                    ]);
+
+        //$pregunta->criterios()->updateExistingPivot($criterio->id,array('score' => $request->score, 'criterio_id' => $request->criterio_id));
+
+        return redirect()->route('criterios.index',[$modulo,$evaluation,$pregunta])->with('info','El criterio se actualizó exitosamente');
     }
 
     /**
@@ -120,8 +164,10 @@ class CriterioController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Modulo $modulo, Evaluation $evaluation, Question $pregunta)
+    public function destroy(Modulo $modulo, Evaluation $evaluation, Question $pregunta, Criterio $criterio)
     {
-        //
+        $pregunta->criterios()->detach($criterio->id);
+
+        return redirect()->route('criterios.index',[$modulo,$evaluation,$pregunta])->with('info','El criterio se eliminó de la pregunta exitosamente');
     }
 }

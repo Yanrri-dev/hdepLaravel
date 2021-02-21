@@ -25,6 +25,6 @@ class Criterio extends Model
 
     // Many to Many (obtiene user)
     public function obtieneUser(){
-        return $this->belongsToMany('App\Models\User');
+        return $this->belongsToMany('App\Models\User','obtiene','criterio_id','user_id');
     }
 }

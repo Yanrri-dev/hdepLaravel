@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use App\Models\Modulo;
 use Illuminate\Support\Facades\DB;
 use App\Models\Evaluation;
-use PhpParser\Node\Expr\Eval_;
 use App\Models\Category;
 
 class EvaluationController extends Controller
@@ -88,9 +87,47 @@ class EvaluationController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Modulo $modulo, Evaluation $evaluation)
     {
-        //
+        $preguntas= DB::table('questions as preg')
+            ->select(array('preg.name','preg.id',DB::raw('count(qc.criterio_id) as num_criterios')))
+            ->join('question_criterio as qc','preg.id','=','qc.question_id')
+            ->where('preg.evaluation_id',$evaluation->id)
+            ->groupBy('preg.id')
+            ->orderBy('preg.number')
+            ->get();
+
+        $criterios= DB::table('criterios as crit')
+            ->select('crit.name as criterio_name','qc.score','preg.name as question_name','preg.id as question_id')
+            ->join('question_criterio as qc','crit.id','=','qc.criterio_id')
+            ->join('questions as preg','qc.question_id','=','preg.id')
+            ->where('preg.evaluation_id',$evaluation->id)
+            ->orderBy('preg.number','asc')
+            ->orderBy('qc.score','desc')
+            ->get();
+        
+        $participantes = DB::table('questions as preg')
+            ->select('us.name','us.last_name','us.email','ob.score_obtenido','ob.porcentaje','crit.id as criterio_id','preg.id as question_id')
+            ->join('question_criterio as qc','preg.id','=','qc.question_id')
+            ->join('criterios as crit','qc.criterio_id','=','crit.id')
+            ->join('obtiene as ob', function($join){
+                $join->on('crit.id','=','ob.criterio_id');
+                $join->on('qc.question_id','=','ob.question_id');
+            })
+            ->join('users as us','ob.user_id','=','us.id')
+            ->join('participantes as p','us.id','=','p.user_id')
+            ->where('p.modulo_id',$modulo->id)
+            ->orderBy('us.last_name','desc')
+            ->orderBy('us.name','desc')
+            ->orderBy('preg.number','asc')
+            ->orderBy('qc.score','desc')
+            ->get();
+        
+        //return $participantes;
+        $num_criterios=0;
+        $suma=0;
+        $i=0;
+        return view('evaluations.show',compact(['preguntas','criterios','participantes','suma','i','num_criterios']));
     }
 
     /**

@@ -11,6 +11,7 @@ use App\Rules\AvailableScore;
 use Illuminate\Support\Str as Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Carbon;
 
 class CriterioController extends Controller
 {
@@ -65,6 +66,20 @@ class CriterioController extends Controller
 
             $pregunta->criterios()->attach($criterio->id,['score' => $request->score]);
 
+            foreach ($modulo->participantes as $participante){
+                if($participante->pivot->rol == 'Estudiante'){
+                    DB::table('obtiene')->insert([
+                        'score_obtenido' => 0,
+                        'porcentaje' => 0,
+                        'user_id' => $participante->id,
+                        'criterio_id' => $request->criterio_id,
+                        'question_id' => $pregunta->id,
+                        'created_at' => Carbon::now('America/Santiago')->toDateTimeString(),
+                        'updated_at' => Carbon::now('America/Santiago')->toDateTimeString()
+                    ]);
+                }
+            }
+
             return redirect()->route('criterios.index',[$modulo,$evaluation,$pregunta])->with('info','El criterio se creó y agregó a la pregunta exitosamente');
 
         }else{
@@ -77,6 +92,23 @@ class CriterioController extends Controller
             ]);
 
             $pregunta->criterios()->attach($request->criterio_id,['score' => $request->score]);
+
+            //al asignar el criterio se debe agregar a la tabla obtiene por cada estudiante del modulo
+            
+            foreach ($modulo->participantes as $participante){
+                if($participante->pivot->rol == 'Estudiante'){
+                    DB::table('obtiene')->insert([
+                        'score_obtenido' => 0,
+                        'porcentaje' => 0,
+                        'user_id' => $participante->id,
+                        'criterio_id' => $request->criterio_id,
+                        'question_id' => $pregunta->id,
+                        'created_at' => Carbon::now('America/Santiago')->toDateTimeString(),
+                        'updated_at' => Carbon::now('America/Santiago')->toDateTimeString()
+                    ]);
+                }
+            }
+
             
             return redirect()->route('criterios.index',[$modulo,$evaluation,$pregunta])->with('info','El criterio se agregó a la pregunta exitosamente');
         }
@@ -130,6 +162,21 @@ class CriterioController extends Controller
                 'score' => $request->score,
                 'criterio_id' => $request->criterio_id                                            
             ]);
+        //En caso de que el criterio cambie es necesario actualizar el id en la tabla obtiene
+        if ($criterio->id != $request->criterio_id){
+            
+            foreach ($modulo->participantes as $participante){
+                if ($participante->pivot->rol == 'Estudiante'){
+                    DB::table('obtiene')
+                        ->where('question_id',$pregunta->id)
+                        ->where('user_id',$participante->id)
+                        ->where('criterio_id',$criterio->id)
+                        ->update([
+                            'criterio_id' => $request->criterio_id
+                    ]);
+                }
+            }
+        }
 
         return redirect()->route('criterios.index',[$modulo,$evaluation,$pregunta])->with('info','El criterio se actualizó exitosamente');
     }
@@ -143,7 +190,14 @@ class CriterioController extends Controller
     public function destroy(Modulo $modulo, Evaluation $evaluation, Question $pregunta, Criterio $criterio)
     {
         $pregunta->criterios()->detach($criterio->id);
-
+        
+        //al eliminar el criterio de la pregunta se debe tambien eliminar los registros de la tabla obtiene
+        foreach ($modulo->participantes as $p){
+            if ($p->pivot->rol == 'Estudiante'){
+                $criterio->obtieneUser()->wherePivot('question_id',$pregunta->id)->detach($p->id); 
+            }
+        }
+        
         return redirect()->route('criterios.index',[$modulo,$evaluation,$pregunta])->with('info','El criterio se eliminó de la pregunta exitosamente');
     }
 }

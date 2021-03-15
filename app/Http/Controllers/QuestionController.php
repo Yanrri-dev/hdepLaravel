@@ -17,6 +17,8 @@ class QuestionController extends Controller
      */
     public function index(Modulo $modulo, Evaluation $evaluation)
     {
+        $this->authorize('isProfessor',$modulo);
+
         $preguntas = Question::where('evaluation_id','=',$evaluation->id)->get();
 
 
@@ -30,6 +32,8 @@ class QuestionController extends Controller
      */
     public function create(Modulo $modulo, Evaluation $evaluation)
     {
+        $this->authorize('isProfessor',$modulo);
+
         return view('preguntas.create',compact(['modulo','evaluation']));
     }
 
@@ -41,6 +45,7 @@ class QuestionController extends Controller
      */
     public function store(Modulo $modulo, Evaluation $evaluation, Request $request)
     {
+        $this->authorize('isProfessor',$modulo);
 
         $request->merge(['evaluation_id' => $evaluation->id]);
 
@@ -81,6 +86,8 @@ class QuestionController extends Controller
      */
     public function edit(Modulo $modulo, Evaluation $evaluation, Question $pregunta)
     {
+        $this->authorize('isProfessor',$modulo);
+
         return view('preguntas.edit',compact(['modulo','evaluation','pregunta']));
     }
 
@@ -93,6 +100,8 @@ class QuestionController extends Controller
      */
     public function update(Modulo $modulo,Evaluation $evaluation, Question $pregunta,Request $request)
     {
+        $this->authorize('isProfessor',$modulo);
+
         $request->merge(['evaluation_id' => $evaluation->id]);
 
         $request->validate([
@@ -118,6 +127,8 @@ class QuestionController extends Controller
      */
     public function destroy(Modulo $modulo, Evaluation $evaluation, Question $pregunta)
     {
+        $this->authorize('isProfessor',$modulo);
+
         $res = Question::where('id','=',$pregunta->id)->delete();
         
         $evaluation->num_preguntas--;

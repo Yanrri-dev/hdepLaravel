@@ -39,13 +39,15 @@
                             <td width="10px">
                                 <a class="btn btn-warning btn-sm " href="{{route('admin.users.edit',$user)}}">Editar</a> 
                             </td>
-                            <td width="10px">
-                                <form action="{{route('admin.users.destroy', $user)}}" method="POST">
-                                    @csrf
-                                    @method('delete')
-                                    <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
-                                </form>
-                            </td>
+                            @can('admin.users.destroy')
+                                <td width="10px">
+                                    <form action="{{route('admin.users.destroy', $user)}}" method="POST">
+                                        @csrf
+                                        @method('delete')
+                                        <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                                    </form>
+                                </td>
+                            @endcan
                         </tr>
                     @endforeach
                 </tbody>

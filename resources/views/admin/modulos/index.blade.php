@@ -38,13 +38,15 @@
                             <td width="10px">
                                 <a class="btn btn-warning btn-sm" href="{{route('admin.modulos.edit',$modulo)}}">Editar</a> 
                             </td>
-                            <td width="10px">
-                                <form action="{{route('admin.modulos.destroy', $modulo)}}" method="POST">
-                                    @csrf
-                                    @method('delete')
-                                    <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
-                                </form>
-                            </td>
+                            @can('admin.modulos.destroy')
+                                <td width="10px">
+                                    <form action="{{route('admin.modulos.destroy', $modulo)}}" method="POST">
+                                        @csrf
+                                        @method('delete')
+                                        <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                                    </form>
+                                </td>
+                            @endcan
                         </tr>
                     @endforeach
                 </tbody>

@@ -22,6 +22,8 @@ class CriterioController extends Controller
      */    
     public function index(Modulo $modulo, Evaluation $evaluation, Question $pregunta)
     {
+        $this->authorize('isProfessor',$modulo);
+
         return view('criterios.index',compact(['modulo','evaluation','pregunta']));
     }
 
@@ -32,6 +34,7 @@ class CriterioController extends Controller
      */
     public function create(Modulo $modulo, Evaluation $evaluation, Question $pregunta)
     {
+        $this->authorize('isProfessor',$modulo);
 
         $criterios = Criterio::where('modulo_id',$modulo->id)->pluck('name','id');
 
@@ -46,6 +49,8 @@ class CriterioController extends Controller
      */
     public function store(Modulo $modulo, Evaluation $evaluation, Question $pregunta,Request $request)
     {
+        $this->authorize('isProfessor',$modulo);
+
         if($request->accion == 'nuevo'){
             //validaciones para al crear nuevo criterio
             $request->validate([
@@ -72,12 +77,13 @@ class CriterioController extends Controller
                         'score_obtenido' => 0,
                         'porcentaje' => 0,
                         'user_id' => $participante->id,
-                        'criterio_id' => $request->criterio_id,
+                        'criterio_id' => $criterio->id,
                         'question_id' => $pregunta->id,
                         'created_at' => Carbon::now('America/Santiago')->toDateTimeString(),
                         'updated_at' => Carbon::now('America/Santiago')->toDateTimeString()
                     ]);
                 }
+                
             }
 
             return redirect()->route('criterios.index',[$modulo,$evaluation,$pregunta])->with('info','El criterio se creó y agregó a la pregunta exitosamente');
@@ -133,6 +139,8 @@ class CriterioController extends Controller
      */
     public function edit(Modulo $modulo, Evaluation $evaluation, Question $pregunta, Criterio $criterio)
     {
+        $this->authorize('isProfessor',$modulo);
+
         $criterios = Criterio::where('modulo_id',$modulo->id)->pluck('name','id');
 
         return view('criterios.edit',compact(['modulo','evaluation','pregunta','criterio','criterios']));
@@ -147,6 +155,7 @@ class CriterioController extends Controller
      */
     public function update(Modulo $modulo, Evaluation $evaluation, Question $pregunta,Criterio $criterio, Request $request)
     {
+        $this->authorize('isProfessor',$modulo);
 
         $request->validate([
             'criterio_id' => ['required', Rule::unique('question_criterio')->where(function($query) use ($pregunta,$criterio){
@@ -189,6 +198,8 @@ class CriterioController extends Controller
      */
     public function destroy(Modulo $modulo, Evaluation $evaluation, Question $pregunta, Criterio $criterio)
     {
+        $this->authorize('isProfessor',$modulo);
+
         $pregunta->criterios()->detach($criterio->id);
         
         //al eliminar el criterio de la pregunta se debe tambien eliminar los registros de la tabla obtiene

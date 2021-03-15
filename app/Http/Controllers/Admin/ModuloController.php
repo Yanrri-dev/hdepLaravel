@@ -11,17 +11,15 @@ use Illuminate\Support\Facades\Storage;
 class ModuloController extends Controller
 {
 
-   /*  public function newUser($email){
+    public function __construct()
+    {
+        $this->middleware('can:admin.modulos.index')->only('index');
+        $this->middleware('can:admin.modulos.create')->only('create','store');
+        $this->middleware('can:admin.modulos.edit')->only('edit','update');
+        $this->middleware('can:admin.modulos.destroy')->only('destroy');
+    }    
 
-       $user = new User;
-       $user->name= $email;
-       $user->email= $email;
-       $user->password = bcrypt($email);
-       $user->save();
 
-       return $user;
-
-    } */
     /**
      * Display a listing of the resource.
      *

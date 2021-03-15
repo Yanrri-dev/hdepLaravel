@@ -7,7 +7,16 @@ use App\Models\User;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
-{
+{   
+
+    public function __construct()
+    {
+        $this->middleware('can:admin.users.index')->only('index');
+        $this->middleware('can:admin.users.create')->only('create','store');
+        $this->middleware('can:admin.users.edit')->only('edit','update');
+        $this->middleware('can:admin.users.destroy')->only('destroy');
+    }   
+    
     /**
      * Display a listing of the resource.
      *

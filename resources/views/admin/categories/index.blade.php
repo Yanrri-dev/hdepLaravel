@@ -35,13 +35,15 @@
                             <td width="10px">
                                 <a class="btn btn-warning btn-sm" href="{{route('admin.categories.edit',$category)}}">Editar</a> 
                             </td>
-                            <td width="10px">
-                                <form action="{{route('admin.categories.destroy', $category)}}" method="POST">
-                                    @csrf
-                                    @method('delete')
-                                    <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
-                                </form>
-                            </td>
+                            @can('admin.categories.destroy')
+                                <td width="10px">
+                                    <form action="{{route('admin.categories.destroy', $category)}}" method="POST">
+                                        @csrf
+                                        @method('delete')
+                                        <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                                    </form>
+                                </td>
+                            @endcan
                         </tr>
                     @endforeach
                 </tbody>

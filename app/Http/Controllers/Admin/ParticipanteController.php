@@ -8,7 +8,16 @@ use App\Models\Modulo;
 use App\Models\User;
 
 class ParticipanteController extends Controller
-{
+{   
+
+
+    public function __construct()
+    {
+        $this->middleware('can:admin.modulos.participantes.show')->only('show');
+        $this->middleware('can:admin.modulos.participantes.create')->only('create','store');
+        $this->middleware('can:admin.modulos.participantes.destroy')->only('destroy');
+    }   
+
     /**
      * Display a listing of the resource.
      *

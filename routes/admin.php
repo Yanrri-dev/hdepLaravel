@@ -8,7 +8,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ParticipanteController;
 use App\Http\Controllers\Admin\CategoryController;
 
-Route::get('', [HomeController::class, 'index'])->name('admin.home');
+Route::get('', [HomeController::class, 'index'])->middleware('can:admin.home')->name('admin.home');
 
 
 Route::resource('modulos', ModuloController::class)->names('admin.modulos');

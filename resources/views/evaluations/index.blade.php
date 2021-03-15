@@ -132,7 +132,12 @@
                         <tr>
                             <td>{{$evaluation->name}}</td>
                             <td>{{$evaluation->category->name}}</td>
-                            <td><a class="tooltip" href="{{route('preguntas.index',[$modulo,$evaluation])}}">{{$evaluation->num_preguntas}}<span class="tooltiptext">Ver Preguntas</span></a>&nbsp&nbsp&nbsp&nbsp<a class="tooltip p-2 my-2 bg-blue-500 text-white rounded-md focus:outline-none focus:ring-2 ring-blue-300 ring-offset-2 fas fa-plus" href="{{route('preguntas.create',[$modulo,$evaluation])}}"><span class='tooltiptext'>Agregar pregunta</span></a></td>
+                            @if ($rol == "Docente")
+                                <td><a class="tooltip" href="{{route('preguntas.index',[$modulo,$evaluation])}}">{{$evaluation->num_preguntas}}<span class="tooltiptext">Ver Preguntas</span></a>&nbsp&nbsp&nbsp&nbsp<a class="tooltip p-2 my-2 bg-blue-500 text-white rounded-md focus:outline-none focus:ring-2 ring-blue-300 ring-offset-2 fas fa-plus" href="{{route('preguntas.create',[$modulo,$evaluation])}}"><span class='tooltiptext'>Agregar pregunta</span></a></td>
+                            @else
+                                <td>{{$evaluation->num_preguntas}}</td>
+                            @endif
+                            
                             <td>{{$evaluation->created_at}}</td>
                         
                             @if ($rol == "Docente")

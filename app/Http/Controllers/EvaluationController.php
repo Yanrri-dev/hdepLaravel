@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Modulo;
 use Illuminate\Support\Facades\DB;
@@ -17,32 +18,14 @@ class EvaluationController extends Controller
      */
     public function index(Modulo $modulo)
     {
-        //$user = auth()->user();
-        
-        /* $modulo_user = DB::table('modulos')
-        ->leftJoin('participantes', 'modulos.id', '=', 'participantes.modulo_id')
-        ->where('participantes.user_id', '=', $user->id)
-        ->where('participantes.modulo_id','=',$modulo->id)
-        ->select('user_id','modulo_id','rol','name','slug')
-        ->get();  */
+        $this->authorize('participar', $modulo);
 
-
-        /* $modulo = Modulo::whereHas('participantes', function ($query) use($user,$modulo) {
-            return $query->where('user_id', '=', $user->id)->where('modulo_id','=',$modulo->id);
-        })->get();
-
-        return $modulo; */
+        /** @var App\Models\User $user */
+        $user= auth()->user();
+        $participa = $user->modulos()->where('modulo_id',$modulo->id)->first();
+        $rol= $participa->pivot->rol;
 
         $pautas = Evaluation::has('category')->where('modulo_id','=',$modulo->id)->orderBy('id','DESC')->get();
-
-        //$pautas->category()->get();
-        foreach($modulo->participantes as $participante){
-            if($participante->pivot->user_id == auth()->user()->id){
-                $rol = $participante->pivot->rol;
-                break;
-            }
-        }
-        //return $pautas;
 
         return view('evaluations.index', compact(['modulo','pautas','rol']));
     }
@@ -53,7 +36,9 @@ class EvaluationController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create(Modulo $modulo)
-    {
+    {   
+        //return $c = auth()->user()->modulos()->where('modulo_id',$modulo->id)->get();
+        $this->authorize('isProfessor',$modulo);
 
         $categories= Category::pluck('name','id');
 
@@ -68,6 +53,8 @@ class EvaluationController extends Controller
      */
     public function store(Request $request, Modulo $modulo)
     {
+        $this->authorize('isProfessor',$modulo);
+
         $request->validate([
             'name' => 'required',
             'slug' => 'required|unique:evaluations',
@@ -89,6 +76,8 @@ class EvaluationController extends Controller
      */
     public function show(Modulo $modulo, Evaluation $evaluation)
     {
+        $this->authorize('participar', $modulo);
+
         $preguntas= DB::table('questions as preg')
             ->select(array('preg.name','preg.id',DB::raw('count(qc.criterio_id) as num_criterios')))
             ->join('question_criterio as qc','preg.id','=','qc.question_id')
@@ -123,11 +112,7 @@ class EvaluationController extends Controller
             ->orderBy('qc.score','desc')
             ->get();
         
-        //return $participantes;
-        $num_criterios=0;
-        $suma=0;
-        $i=0;
-        return view('evaluations.show',compact(['preguntas','criterios','participantes','suma','i','num_criterios']));
+        return view('evaluations.show',compact(['evaluation','preguntas','criterios','participantes']));
     }
 
     /**
@@ -138,6 +123,8 @@ class EvaluationController extends Controller
      */
     public function edit(Modulo $modulo, Evaluation $evaluation)
     {
+        $this->authorize('isProfessor',$modulo);
+
         $categories= Category::pluck('name','id');
         return view('evaluations.edit',compact(['modulo','evaluation','categories']));
     }
@@ -151,6 +138,8 @@ class EvaluationController extends Controller
      */
     public function update(Request $request, Modulo $modulo, Evaluation $evaluation)
     {
+        $this->authorize('isProfessor',$modulo);
+
         $request->validate([
             'name' => 'required',
             'slug' => "required|unique:evaluations,slug,$evaluation->id",
@@ -171,8 +160,9 @@ class EvaluationController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy(Modulo $modulo, $id)
-
     {   
+        $this->authorize('isProfessor',$modulo);
+
         $pauta = Evaluation::where('id','=',$id)->delete();
 
         return redirect()->route('evaluations.index',$modulo)->with('info','La pauta de evaluación se eliminó con éxito');

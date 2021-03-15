@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        //Storage::makeDirectory(public_path() . '/storage/modulos');
+        $this->call(RoleSeeder::class);
         Storage::disk('public')->makeDirectory('modulos');
         $this->call(UserSeeder::class);
         Category::factory(4)->create();

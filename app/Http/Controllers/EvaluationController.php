@@ -87,7 +87,7 @@ class EvaluationController extends Controller
             ->get();
 
         $criterios= DB::table('criterios as crit')
-            ->select('crit.name as criterio_name','qc.score','preg.name as question_name','preg.id as question_id')
+            ->select('crit.id as criterio_id', 'crit.name as criterio_name','qc.score','preg.name as question_name','preg.id as question_id')
             ->join('question_criterio as qc','crit.id','=','qc.criterio_id')
             ->join('questions as preg','qc.question_id','=','preg.id')
             ->where('preg.evaluation_id',$evaluation->id)
@@ -96,7 +96,7 @@ class EvaluationController extends Controller
             ->get();
         
         $participantes = DB::table('questions as preg')
-            ->select('us.name','us.last_name','us.email','ob.score_obtenido','ob.porcentaje','crit.id as criterio_id','preg.id as question_id')
+            ->select('us.name','us.last_name','us.id as user_id','ob.score_obtenido','ob.porcentaje','crit.id as criterio_id','preg.id as question_id')
             ->join('question_criterio as qc','preg.id','=','qc.question_id')
             ->join('criterios as crit','qc.criterio_id','=','crit.id')
             ->join('obtiene as ob', function($join){
@@ -111,8 +111,13 @@ class EvaluationController extends Controller
             ->orderBy('preg.number','asc')
             ->orderBy('qc.score','desc')
             ->get();
-        
-        return view('evaluations.show',compact(['evaluation','preguntas','criterios','participantes']));
+
+        /** @var App\Models\User $user */
+        $user= auth()->user();
+        $participa = $user->modulos()->where('modulo_id',$modulo->id)->first();
+        $rol= $participa->pivot->rol;
+
+        return view('evaluations.show',compact(['modulo','evaluation','preguntas','criterios','participantes','rol']));
     }
 
     /**

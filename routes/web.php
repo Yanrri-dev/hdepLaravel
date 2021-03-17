@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ModuloController;
 use App\Http\Controllers\EvaluationController;
 use App\Http\Controllers\QuestionController;
+use App\Http\Controllers\ObtieneController;
 
 Route::middleware(['auth:sanctum', 'verified'])->get('/', [ModuloController::class, 'index'])->name('modulos.index');
 
@@ -20,3 +21,5 @@ Route::middleware(['auth:sanctum', 'verified'])->resource('/modulos/{modulo}/eva
 Route::middleware(['auth:sanctum', 'verified'])->resource('/modulos/{modulo}/evaluations/{evaluation}/preguntas', QuestionController::class)->names('preguntas');
 
 Route::middleware(['auth:sanctum', 'verified'])->resource('/modulos/{modulo}/evaluations/{evaluation}/preguntas/{pregunta}/criterios', CriterioController::class)->names('criterios');
+
+Route::middleware(['auth:sanctum', 'verified'])->put('/modulos/{modulo}/evaluations/{evaluation}/obtiene', [ObtieneController::class,'update'])->name('evaluation.obtiene');
